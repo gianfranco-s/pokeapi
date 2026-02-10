@@ -1,9 +1,15 @@
 import httpx
+from collections import Counter
 
 from src.config import Settings
 from src.models import Berry, BerryListResponse
 
 settings = Settings()
+
+
+class UpstreamApiError(Exception):
+    """Raised when upstream API (PokeAPI) fails."""
+    pass
 
 
 async def fetch_all_berries(base_url: str, endpoint: str = "berry/") -> list[Berry]:
@@ -29,3 +35,31 @@ async def fetch_all_berries(base_url: str, endpoint: str = "berry/") -> list[Ber
             page_count += 1
 
     return berries
+
+
+async def fetch_berry_data() -> tuple[list[str], list[int], Counter[int]]:
+    """Fetch and process berry data. Returns (names, growth_times, frequency)."""
+    try:
+        berries = await fetch_all_berries(settings.pokeapi_base_url)
+    except httpx.HTTPError as e:
+        raise UpstreamApiError("Failed to fetch data from PokeAPI") from e
+    
+    names = [b.name for b in berries]
+    growth_times = [b.growth_time for b in berries]
+    frequency = Counter(growth_times)
+    
+    return names, growth_times, frequency
+
+
+async def fetch_berry_data() -> tuple[list[str], list[int], Counter[int]]:
+    """Fetch and process berry data. Returns (names, growth_times, frequency)."""
+    try:
+        berries = await fetch_all_berries(settings.pokeapi_base_url)
+    except httpx.HTTPError as e:
+        raise UpstreamApiError("Failed to fetch data from PokeAPI") from e
+    
+    names = [b.name for b in berries]
+    growth_times = [b.growth_time for b in berries]
+    frequency = Counter(growth_times)
+    
+    return names, growth_times, frequency
