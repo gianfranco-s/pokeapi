@@ -46,9 +46,11 @@ docker run --rm pokeapi-tests
 
 ## Verify cache is working
 ```bash
-# Start server
-curl http://localhost:8000/allBerryStats  # Should take a while
-curl http://localhost:8000/allBerryStats  # Should noticeably faster
+# First request (cache miss) - should be slow
+curl -v -w "\nTotal response time: %{time_total}s\n" http://localhost:8000/allBerryStats
+
+# Second request (cache hit) - should be fast
+curl -v -w "\nTotal response time: %{time_total}s\n" http://localhost:8000/allBerryStats
 ```
 
 ```bash
