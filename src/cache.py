@@ -70,7 +70,7 @@ class RedisCache(CacheBackend):
 
 def create_cache(redis_url: str | None) -> CacheBackend | None:
     """Factory: create a cache backend from a Redis URL, or None if unavailable."""
-    if not redis_url:
+    if redis_url is None:
         return None
     try:
         return RedisCache(redis_url)

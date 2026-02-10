@@ -1,7 +1,7 @@
 import statistics
 
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse, Response
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 
 from src.chart import render_growth_time_histogram
 from src.dependencies import BaseUrlDep, CacheDep, CacheTtlDep
@@ -16,15 +16,15 @@ async def all_berry_stats(
     base_url: BaseUrlDep,
     cache: CacheDep,
     cache_ttl: CacheTtlDep,
-) -> AllBerryStatsResponse | JSONResponse:
+) -> AllBerryStatsResponse:
     try:
         names, growth_times, frequency = await fetch_berry_data(
             base_url, cache, cache_ttl
         )
     except UpstreamApiError:
-        return JSONResponse(
+        raise HTTPException(
             status_code=502,
-            content={"detail": "Failed to fetch data from PokeAPI"},
+            detail="Failed to fetch data from PokeAPI"
         )
 
     return AllBerryStatsResponse(
@@ -49,9 +49,9 @@ async def histogram(
             base_url, cache, cache_ttl
         )
     except UpstreamApiError:
-        return JSONResponse(
+        raise HTTPException(
             status_code=502,
-            content={"detail": "Failed to fetch data from PokeAPI"},
+            detail="Failed to fetch data from PokeAPI"
         )
 
     png_bytes: bytes = render_growth_time_histogram(frequency)
