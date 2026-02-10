@@ -22,6 +22,24 @@ This project implements a Poke-berries statistics API that provides statistical 
 
 **No Authentication**: This is a development/demonstration project with no authentication layer implemented. Not suitable for production use without security enhancements.
 
+### File structure
+
+```
+src/                 # Application code (flat layout)
+├── main.py          # FastAPI app factory and entrypoint
+├── dependencies.py  # FastAPI dependency providers
+├── router.py        # API route definitions
+├── models.py        # Pydantic data models
+├── cache.py         # Redis cache implementation
+├── config.py        # Pydantic environment configuration
+├── upstream_api.py  # Business logic: PokeAPI integration
+└── chart.py         # Business logic: histogram generation
+
+tests/               # Test suite
+docker/              # Container definitions
+terraform/           # Infrastructure as Code (AWS)
+```
+
 ## How to Run
 
 Intended usage is docker-based.
