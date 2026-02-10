@@ -58,6 +58,12 @@ The API will be available at `http://localhost:8000`.
 - `http://localhost:8000/histogram` — growth time frequency chart (PNG)
 - `http://localhost:8000/docs` — interactive API documentation (Swagger UI)
 
+### Run with Docker
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
 ### Run tests
 
 ```bash
