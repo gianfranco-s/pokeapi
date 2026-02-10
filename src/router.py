@@ -1,9 +1,10 @@
 import statistics
 
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse, Response
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 
 from src.chart import render_growth_time_histogram
+from src.dependencies import BaseUrlDep, CacheDep, CacheTtlDep
 from src.models import AllBerryStatsResponse
 from src.upstream_api import fetch_berry_data, UpstreamApiError
 
@@ -11,15 +12,21 @@ router = APIRouter()
 
 
 @router.get("/allBerryStats", response_model=AllBerryStatsResponse)
-async def all_berry_stats() -> AllBerryStatsResponse | JSONResponse:
+async def all_berry_stats(
+    base_url: BaseUrlDep,
+    cache: CacheDep,
+    cache_ttl: CacheTtlDep,
+) -> AllBerryStatsResponse:
     try:
-        names, growth_times, frequency = await fetch_berry_data()
-    except UpstreamApiError:
-        return JSONResponse(
-            status_code=502,
-            content={"detail": "Failed to fetch data from PokeAPI"},
+        names, growth_times, frequency = await fetch_berry_data(
+            base_url, cache, cache_ttl
         )
-    
+    except UpstreamApiError:
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to fetch data from PokeAPI"
+        )
+
     return AllBerryStatsResponse(
         berries_names=names,
         min_growth_time=min(growth_times),
@@ -32,14 +39,20 @@ async def all_berry_stats() -> AllBerryStatsResponse | JSONResponse:
 
 
 @router.get("/histogram", response_class=Response)
-async def histogram() -> Response:
+async def histogram(
+    base_url: BaseUrlDep,
+    cache: CacheDep,
+    cache_ttl: CacheTtlDep,
+) -> Response:
     try:
-        _, growth_times, frequency = await fetch_berry_data()
-    except UpstreamApiError:
-        return JSONResponse(
-            status_code=502,
-            content={"detail": "Failed to fetch data from PokeAPI"},
+        _, growth_times, frequency = await fetch_berry_data(
+            base_url, cache, cache_ttl
         )
-    
+    except UpstreamApiError:
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to fetch data from PokeAPI"
+        )
+
     png_bytes: bytes = render_growth_time_histogram(frequency)
     return Response(content=png_bytes, media_type="image/png")
