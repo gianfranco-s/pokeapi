@@ -35,21 +35,10 @@ The directory structure is intentionally kept flat (`src/` with no nested packag
 
 ## How to Run
 
-### Prerequisites
-
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/) package manager
-
-### Install dependencies
+Intended usage is docker-based.
 
 ```bash
-uv sync
-```
-
-### Start the application
-
-```bash
-uv run uvicorn src.main:app --reload
+docker compose -f docker/docker-compose.yml up --build
 ```
 
 The API will be available at `http://localhost:8000`.
@@ -58,14 +47,10 @@ The API will be available at `http://localhost:8000`.
 - `http://localhost:8000/histogram` — growth time frequency chart (PNG)
 - `http://localhost:8000/docs` — interactive API documentation (Swagger UI)
 
-### Run with Docker
+
+## Tests
 
 ```bash
-docker compose -f docker/docker-compose.yml up --build
-```
-
-### Run tests
-
-```bash
-uv run pytest tests/ -v
+docker buildx build -f docker/Dockerfile.tests -t pokeapi-tests .
+docker run --rm pokeapi-tests
 ```
