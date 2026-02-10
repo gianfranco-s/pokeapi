@@ -29,6 +29,37 @@ Returns comprehensive statistics about all berries, including their names and va
 
 This endpoint fetches data from the external PokeAPI berries endpoint: https://pokeapi.co/docs/v2#berries
 
+## Architecture Decisions
+
+The directory structure is intentionally kept flat (`src/` with no nested packages). The project requirements are well-scoped and unlikely to change. The upstream PokeAPI documentation explicitly states the data is static and the API won't change in the near future. A flat layout avoids premature abstraction and keeps navigation straightforward for a project of this size.
+
 ## How to Run
 
-Instructions for running the application will be provided after implementation.
+### Prerequisites
+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) package manager
+
+### Install dependencies
+
+```bash
+uv sync
+```
+
+### Start the application
+
+```bash
+uv run uvicorn src.main:app --reload
+```
+
+The API will be available at `http://localhost:8000`.
+
+- `http://localhost:8000/allBerryStats` — berry growth time statistics (JSON)
+- `http://localhost:8000/histogram` — growth time frequency chart (PNG)
+- `http://localhost:8000/docs` — interactive API documentation (Swagger UI)
+
+### Run tests
+
+```bash
+uv run pytest tests/ -v
+```

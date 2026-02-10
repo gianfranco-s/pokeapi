@@ -1,6 +1,6 @@
 from typing import Any
 from collections.abc import Generator
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -87,8 +87,8 @@ def mock_pokeapi(mock_berry_list_response: dict[str, Any]) -> Generator[AsyncMoc
     """Patch httpx calls to return mocked PokeAPI responses."""
     berry_details = {name: _make_berry_detail(name, gt) for name, gt in SAMPLE_BERRIES}
 
-    async def mock_get(url: str, **kwargs: Any) -> AsyncMock:
-        response = AsyncMock()
+    async def mock_get(url: str, **kwargs: Any) -> Mock:
+        response = Mock()
         response.raise_for_status = lambda: None
 
         if "/api/v2/berry/" in url and url.rstrip("/").split("/")[-1].isdigit():
@@ -100,7 +100,7 @@ def mock_pokeapi(mock_berry_list_response: dict[str, Any]) -> Generator[AsyncMoc
 
         return response
 
-    with patch("src.router.httpx.AsyncClient") as mock_client_cls:
+    with patch("src.upstream_api.httpx.AsyncClient") as mock_client_cls:
         mock_client_instance = AsyncMock()
         mock_client_instance.get = mock_get
         mock_client_instance.__aenter__ = AsyncMock(return_value=mock_client_instance)
@@ -123,11 +123,9 @@ def mock_pokeapi_paginated() -> Generator[AsyncMock, None, None]:
     page2 = _make_berry_list_response(page2_berries, offset=3)
 
     all_details = {name: _make_berry_detail(name, gt) for name, gt in SAMPLE_BERRIES}
-    call_count = 0
 
-    async def mock_get(url: str, **kwargs: Any) -> AsyncMock:
-        nonlocal call_count
-        response = AsyncMock()
+    async def mock_get(url: str, **kwargs: Any) -> Mock:
+        response = Mock()
         response.raise_for_status = lambda: None
 
         if "/api/v2/berry/" in url and url.rstrip("/").split("/")[-1].isdigit():
@@ -141,7 +139,7 @@ def mock_pokeapi_paginated() -> Generator[AsyncMock, None, None]:
 
         return response
 
-    with patch("src.router.httpx.AsyncClient") as mock_client_cls:
+    with patch("src.upstream_api.httpx.AsyncClient") as mock_client_cls:
         mock_client_instance = AsyncMock()
         mock_client_instance.get = mock_get
         mock_client_instance.__aenter__ = AsyncMock(return_value=mock_client_instance)
@@ -158,7 +156,7 @@ def mock_pokeapi_error() -> Generator[AsyncMock, None, None]:
     async def mock_get(url: str, **kwargs: Any) -> None:
         raise httpx.ConnectError("Connection refused")
 
-    with patch("src.router.httpx.AsyncClient") as mock_client_cls:
+    with patch("src.upstream_api.httpx.AsyncClient") as mock_client_cls:
         mock_client_instance = AsyncMock()
         mock_client_instance.get = mock_get
         mock_client_instance.__aenter__ = AsyncMock(return_value=mock_client_instance)
