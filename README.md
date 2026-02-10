@@ -54,3 +54,19 @@ The API will be available at `http://localhost:8000`.
 docker buildx build -f docker/Dockerfile.tests -t pokeapi-tests .
 docker run --rm pokeapi-tests
 ```
+
+## Verify cache is working
+```bash
+# Start server
+curl http://localhost:8000/allBerryStats  # Should take a while
+curl http://localhost:8000/allBerryStats  # Should noticeably faster
+```
+
+```bash
+docker exec -it pokeapi-redis redis-cli
+```
+
+```redis
+> KEYS *
+> TTL berries:all
+```

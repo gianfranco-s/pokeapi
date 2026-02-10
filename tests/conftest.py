@@ -5,7 +5,25 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from src.cache import CacheBackend
+from src.dependencies import get_base_url, get_cache, get_cache_ttl
 from src.main import create_app
+
+
+class NoOpCache(CacheBackend):
+    """Cache that does nothing - for tests."""
+
+    def get(self, key: str) -> None:
+        return None
+
+    def set(self, key: str, value: Any, ttl: int) -> None:
+        pass
+
+    def delete(self, key: str) -> None:
+        pass
+
+    def clear(self) -> None:
+        pass
 
 
 SAMPLE_BERRIES: list[tuple[str, int]] = [
@@ -15,6 +33,9 @@ SAMPLE_BERRIES: list[tuple[str, int]] = [
     ("rawst", 4),
     ("aspear", 5),
 ]
+
+TEST_BASE_URL = "https://pokeapi.co/api/v2"
+TEST_CACHE_TTL = 3600
 
 
 def _make_berry_detail(name: str, growth_time: int) -> dict[str, Any]:
@@ -72,8 +93,13 @@ def mock_berry_detail():
 
 
 @pytest.fixture()
-def app() -> Any:
-    return create_app()
+def app() -> Generator[Any, None, None]:
+    application = create_app()
+    application.dependency_overrides[get_base_url] = lambda: TEST_BASE_URL
+    application.dependency_overrides[get_cache] = lambda: NoOpCache()
+    application.dependency_overrides[get_cache_ttl] = lambda: TEST_CACHE_TTL
+    yield application
+    application.dependency_overrides.clear()
 
 
 @pytest.fixture()
