@@ -1,3 +1,9 @@
 **/__pycache__
 **/.venv
 .env
+
+# Terraform
+terraform/.terraform/
+terraform/terraform.tfstate*
+terraform/*.tfplan
+terraform/*.pem
