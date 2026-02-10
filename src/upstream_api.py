@@ -6,13 +6,15 @@ from src.models import Berry, BerryListResponse
 settings = Settings()
 
 
-async def fetch_all_berries() -> list[Berry]:
+async def fetch_all_berries(base_url: str, endpoint: str = "berry/") -> list[Berry]:
     """Fetch all berries from PokeAPI, handling pagination."""
     berries: list[Berry] = []
-    url: str | None = f"{settings.pokeapi_base_url}/berry/"
+    url = f"{base_url}/{endpoint}"
+    MAX_PAGES = 100  # Safety limit to prevent infinite loops
 
-    async with httpx.AsyncClient() as client:
-        while url is not None:
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        page_count = 0
+        while url is not None and page_count < MAX_PAGES:
             response = await client.get(url)
             response.raise_for_status()
             list_response = BerryListResponse(**response.json())
@@ -24,5 +26,6 @@ async def fetch_all_berries() -> list[Berry]:
                 berries.append(berry)
 
             url = list_response.next
+            page_count += 1
 
     return berries

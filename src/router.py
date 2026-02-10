@@ -8,14 +8,15 @@ from fastapi.responses import JSONResponse, Response
 from src.chart import render_growth_time_histogram
 from src.models import AllBerryStatsResponse
 from src.upstream_api import fetch_all_berries
+from src.config import Settings
 
 router = APIRouter()
-
+upstream_url = Settings().pokeapi_base_url
 
 @router.get("/allBerryStats", response_model=AllBerryStatsResponse)
 async def all_berry_stats() -> AllBerryStatsResponse | JSONResponse:
     try:
-        berries = await fetch_all_berries()
+        berries = await fetch_all_berries(upstream_url)
     except httpx.HTTPError:
         return JSONResponse(
             status_code=502,
@@ -39,7 +40,7 @@ async def all_berry_stats() -> AllBerryStatsResponse | JSONResponse:
 @router.get("/histogram", response_class=Response)
 async def histogram() -> Response:
     try:
-        berries = await fetch_all_berries()
+        berries = await fetch_all_berries(upstream_url)
     except httpx.HTTPError:
         return JSONResponse(
             status_code=502,
