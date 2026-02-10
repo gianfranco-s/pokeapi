@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+.venv
+.env
+.git
+.gitignore
+.claude
+.pytest_cache
+terraform
+*.md
