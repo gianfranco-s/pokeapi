@@ -6,32 +6,21 @@ This project implements a Poke-berries statistics API that provides statistical 
 
 ## Endpoints
 
-### GET /allBerryStats
-
-Returns comprehensive statistics about all berries, including their names and various growth time metrics.
-
-**Response Format:**
-
-```json
-{
-    "berries_names": [...],
-    "min_growth_time": 0, // integer
-    "median_growth_time": 0.0, // float
-    "max_growth_time": 0, // integer
-    "variance_growth_time": 0.0, // float
-    "mean_growth_time": 0.0, // float
-    "frequency_growth_time": { // object mapping growth_time to frequency
-        "growth_time": frequency,
-        ...
-    }
-}
-```
-
-This endpoint fetches data from the external PokeAPI berries endpoint: https://pokeapi.co/docs/v2#berries
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | `/allBerryStats` | Returns comprehensive statistics about all berries from PokeAPI, including names and growth time metrics (min, max, mean, median, variance, frequency distribution) |
+| GET    | `/histogram`     | Returns a server-side rendered PNG chart showing the frequency distribution of berry growth times |
+| GET    | `/docs`          | Interactive API documentation (Swagger UI) with endpoint testing capabilities |
 
 ## Architecture Decisions
 
-The directory structure is intentionally kept flat (`src/` with no nested packages). The project requirements are well-scoped and unlikely to change. The upstream PokeAPI documentation explicitly states the data is static and the API won't change in the near future. A flat layout avoids premature abstraction and keeps navigation straightforward for a project of this size.
+**Flat Directory Structure**: The `src/` directory uses a flat layout with no nested packages. This approach suits the well-scoped requirements and avoids premature abstraction for a project of this size.
+
+**Docker-First Development**: The application runs entirely in containers for consistency across development and deployment environments.
+
+**Redis Caching**: Implements Redis caching to reduce PokeAPI calls and improve response times. The cache stores complete berry datasets with configurable TTL.
+
+**No Authentication**: This is a development/demonstration project with no authentication layer implemented. Not suitable for production use without security enhancements.
 
 ## How to Run
 
